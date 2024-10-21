@@ -5,6 +5,15 @@
       <div class="bg_header">
         <div class="header_nav flt_title">高速公路边坡监控驾驶舱</div>
       </div>
+      <div class="block">
+        <el-date-picker
+          v-model="selectedDate"
+          type="date"
+          placeholder="选择日期"
+          size="mini"
+          @change="handleDateChange">
+        </el-date-picker>
+      </div>
       <!-- 顶部动画 -->
       <div class="header-animations-one"></div>
       <div class="header-animations-two"></div>
@@ -90,6 +99,7 @@ import CustomNoise from "../../components/CustomNoise.vue";
 import Co2 from "../../components/Co2.vue";
 import Site from "../../components/Site.vue";
 import { getAllList } from "../../api/Data";
+import { getNowDate } from "../../api/Date"
 import warning from "../../components/warning.vue";
 export default {
   components: {
@@ -122,6 +132,7 @@ export default {
       IlluminationData: [],
       itemPointsData: {},
       showState: false,
+      selectedDate: ''
     };
   },
   watch: {},
@@ -132,8 +143,16 @@ export default {
     },1000)
   },
   methods: {
-    async getList(e) {
-      const res = await getAllList({ num: 0, id: e });
+    async getList(e,time) {
+      let reqdata={
+        num:0,
+        id:e,
+        time:null
+      }
+      if(time){
+        reqdata.time=time
+      }
+      const res = await getAllList(reqdata);
       if (res.code == 200) {
         let length = res.data[0].length - 1;
         this.nowData = res.data[0][length];
@@ -190,8 +209,44 @@ export default {
 return formattedTime
       
     },
+    async handleDateChange(val) {
+      this.selectedDate = val
+      this.getList(2,this.selectedDate)
+    //   const res = await getNowDate({id:3,time:this.selectedDate})
+    //   if(res.code ==200) {
+    //     let length = res.data[0].length - 1;
+    //     this.nowData = res.data[0][length];
+    //     this.noise = res.data[0][length].noise;
+    //     this.custom = res.data[0][length].sulfurDioxide;
+    //     this.co2 = res.data[0][length].nitrogenDioxide;
+    //     this.pm = res.data[0][length].pm;
+    //     this.pmM = res.data[0][length].pmM;
+    //     this.temperatureData = [];
+    //     this.humidityData = [];
+    //     this.rainData = [];
+    //     this.IlluminationData = [];
+    //     this.time = [];
+    //     res.data[0].forEach((item) => {
+    //       //   温度数据
+
+    //       this.temperatureData.push(item.temperature);
+    //       // 湿度数据
+
+    //       this.humidityData.push(item.thumidity);
+    //       // 雨量数据
+
+    //       this.rainData.push(item.trainfall);
+    //       // 光照数据
+
+    //       this.IlluminationData.push(item.illumination);
+    //       // 时间数据
+
+    //       this.time.push(item.createTime);
+    //   })
+    // }
   },
-};
+}
+}
 </script>
 
 <style lang="less" scoped>
@@ -270,6 +325,14 @@ return formattedTime
     font-size: 18px;
     color: white;
   }
+  .block {
+    margin-left: 1280px;
+    /deep/ .el-date-picker__editor {
+      background-color: red;
+      opacity: 0.9;
+    }
+  }
+  
   .bg_header {
     width: 100%;
     height: 6vh;
